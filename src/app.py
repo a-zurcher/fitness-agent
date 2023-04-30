@@ -5,6 +5,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Input, Markdown, TabbedContent, RadioSet, RadioButton, Label
 
 from Profile import Profile
+from Chat import Chat
 
 
 class FitnessAgent(App):
@@ -19,6 +20,7 @@ class FitnessAgent(App):
         yield Profile(id="profile")
 
         # TODO: ajouter changement de contexte
+        yield Chat()
 
         # TODO: garder en bas
         yield Input(placeholder="Type your message here", id="user_input")
