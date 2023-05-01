@@ -1,5 +1,6 @@
 import openai
 from typing import Dict, List
+import pandas as pd
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, Input, Markdown, TabbedContent, RadioSet, RadioButton, Label
@@ -40,6 +41,15 @@ class FitnessAgent(App):
 
     def add_chat_history(self, prompt, role="user"):
         self.chat_history.append({"role": role, "content": prompt})
+
+    def template_prompt(self, key):
+        df = self.data[self.data['template'] == key]
+        
+        system_content = df[df['role'] == 'system'].content[0]
+        assistant_content = df[df['role'] == 'assistant'].content[0]
+        user_content = df[df['role'] == 'user'].content[0]
+
+        return self.generate_response([{'role': 'system', 'content': system_content}, {'role': 'assistant', 'content': assistant_content}, {'role': 'user', 'content': user_content}])
 
 
 if __name__ == "__main__":
