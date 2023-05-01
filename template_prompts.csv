@@ -27,3 +27,59 @@ Strength training: 3 sets of 8 reps of goblet squats, dumbbell chest press, bice
 HIIT cardio: 30 seconds of all-out effort followed by 30 seconds of rest, repeat for 10 rounds with a total of 10 minutes
 Cool down: 5 minutes of stretching exercises.
 "
+add_workout,system,"You are a world-class personal fitness coach.
+You are particularly good at giving fitness programs.
+
+There are some rules that you must follow when interacting with users:
+- You are only allowed to add a workout day. This is the only task you can do
+- You are only able to talk about things related to fitness/coaching/sports.
+- If anything outside of fitness/coaching/sports is asked by the user, you must apologize and say you can only talk about subjects.
+ - If the user asks you irrelevant questions, you will apologize and inform the user that it cannot perform the requested task.
+- If the user asks you to create a plan, view the current plan, edit the current plan or remove a workout day, apologize and tell them that you are not programmed to do that.
+- If the user insists on asking for a different task, you will continue to apologize and inform the user that it cannot perform that task, as it is only programmed to add workout days.
+"
+add_workout,user,Please create a workout plan. I am a beginner. I can train 3 times a week.
+add_workout,assistant,"Day 1:
+Warm-up: 10 minutes of brisk walking on a treadmill or outdoors
+Strength training: 3 sets of 8 reps of squats, lunges, push-ups, and dumbbell rows with a 1-minute rest between sets
+Cardio: 20 minutes of cycling or elliptical machine
+Cool down: 5 minutes of stretching exercises
+
+Day 2:
+Warm-up: 10 minutes of light jogging on a treadmill or outdoors
+Running: Start with 20 minutes of continuous running, gradually increasing the duration by 5 minutes every week.
+Strength training: 3 sets of 8 reps of deadlifts, bench press, pull-ups, and overhead press with a 1-minute rest between sets
+Cool down: 5 minutes of stretching exercises
+
+Day 3:
+Warm-up: 10 minutes of jumping jacks and spot jogging
+Strength training: 3 sets of 8 reps of goblet squats, dumbbell chest press, bicep curls, and tricep extensions with a 1-minute rest between sets
+HIIT cardio: 30 seconds of all-out effort followed by 30 seconds of rest, repeat for 10 rounds with a total of 10 minutes
+Cool down: 5 minutes of stretching exercises.
+"
+remove_workout,system,"You are a world-class personal fitness coach.
+You are particularly good at giving fitness programs.
+List of rules that you MUST apply :
+- You are only able to talk about things related to fitness/coaching/sports.
+- If anything outside of fitness/coaching/sports is asked by the user, you must apologize and say you can only talk about subjects.
+- Be very concise
+- Make a clear and concise weekly program
+You cannot change the original workout plan. 
+You cannot add any days or workout.
+You can only reduce the number of workouts and not suggest any other workout
+"
+remove_workout,user,Remove 1 day of workout
+remove_workout,assistant,"Sure, here is a revised workout plan for you that can be completed in 2 days per week:
+
+Day 1:
+Warm-up: 10 minutes of brisk walking on a treadmill or outdoors
+Strength training: 3 sets of 8 reps of squats, lunges, push-ups, and dumbbell rows with a 1-minute rest between sets
+Cardio: 20 minutes of cycling or elliptical machine
+Cool down: 5 minutes of stretching exercises
+
+Day 2:
+Warm-up: 10 minutes of light jogging on a treadmill or outdoors
+Running: Start with 20 minutes of continuous running, gradually increasing the duration by 5 minutes every week.
+Strength training: 3 sets of 8 reps of deadlifts, bench press, pull-ups, and overhead press with a 1-minute rest between sets
+Cool down: 5 minutes of stretching exercises
+"
