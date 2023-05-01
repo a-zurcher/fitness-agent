@@ -57,10 +57,11 @@ class FitnessAgent(App):
         prompt = template.format(**inputs)
         return prompt
 
+    # Fonction pour créer le plan d'entraînement original du user selon son niveau de fitness et sa fréquence d'entraînement
     def user_plan(self, fitness_level, training_frequency):
-        data_create_plan = self.data[self.data['template'] == 'create_plan'].content.iloc[0]
+        template = "Please create a workout plan. I am a {fitness_level}. I can train {training_frequency} times a week."
         {'fitness_level': fitness_level, 'training_frequency': training_frequency}
-        return self.template_prompt({'fitness_level': fitness_level, 'training_frequency': training_frequency})
+        return self.template_prompt({'fitness_level': fitness_level, 'training_frequency': training_frequency}, template)
 
 if __name__ == "__main__":
     app = FitnessAgent()
