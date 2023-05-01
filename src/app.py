@@ -42,14 +42,18 @@ class FitnessAgent(App):
     def add_chat_history(self, prompt, role="user"):
         self.chat_history.append({"role": role, "content": prompt})
 
-    def template_prompt(self, key):
+    def commands_prompt(self, key):
         df = self.data[self.data['template'] == key]
         
-        system_content = df[df['role'] == 'system'].content[0]
-        assistant_content = df[df['role'] == 'assistant'].content[0]
-        user_content = df[df['role'] == 'user'].content[0]
+        system_content = df[df['role'] == 'system'].content.iloc[0]
+        assistant_content = df[df['role'] == 'assistant'].content.iloc[0]
+        user_content = df[df['role'] == 'user'].content.iloc[0]
 
         return self.generate_response([{'role': 'system', 'content': system_content}, {'role': 'assistant', 'content': assistant_content}, {'role': 'user', 'content': user_content}])
+
+    def template_prompt(inputs: Dict[str, str], template: str) -> str:
+        prompt = template.format(**inputs)
+        return prompt
 
 
 if __name__ == "__main__":
