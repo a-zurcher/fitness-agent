@@ -1,6 +1,6 @@
 # fitness-agent
 
-Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textural](https://textual.textualize.io).
+Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https://textual.textualize.io).
 
 ## Installation
 
