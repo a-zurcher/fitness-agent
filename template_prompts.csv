@@ -7,7 +7,7 @@ List of rules that you MUST apply :
 - Be very concise
 - Make a clear and concise weekly program based on the objectives
 "
-create_plan,user,"Please create a workout plan. I am a {fitness_level}. I can train {training_frequency} times a week.
+create_plan,user,"Please create a workout plan. I am a beginner. I can train 3 times a week.
 "
 create_plan,assistant,"Day 1:
 Warm-up: 10 minutes of brisk walking on a treadmill or outdoors
