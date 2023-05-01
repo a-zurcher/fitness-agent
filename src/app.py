@@ -12,6 +12,7 @@ from Chat import Chat
 class FitnessAgent(App):
     BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
     CSS_PATH = "FitnessAgent.css"
+    data = pd.read_csv('../template_prompts.csv')
 
     def compose(self) -> ComposeResult:
         # Create child widgets for the app
@@ -42,6 +43,7 @@ class FitnessAgent(App):
     def add_chat_history(self, prompt, role="user"):
         self.chat_history.append({"role": role, "content": prompt})
 
+    # key is the command selected by the user (e.g. "create_plan, add_workout, ...")
     def commands_prompt(self, key):
         df = self.data[self.data['template'] == key]
         
@@ -51,10 +53,14 @@ class FitnessAgent(App):
 
         return self.generate_response([{'role': 'system', 'content': system_content}, {'role': 'assistant', 'content': assistant_content}, {'role': 'user', 'content': user_content}])
 
-    def template_prompt(inputs: Dict[str, str], template: str) -> str:
+    def template_prompt(self, inputs: Dict[str, str], template: str) -> str:
         prompt = template.format(**inputs)
         return prompt
 
+    def user_plan(self, fitness_level, training_frequency):
+        data_create_plan = self.data[self.data['template'] == 'create_plan'].content.iloc[0]
+        {'fitness_level': fitness_level, 'training_frequency': training_frequency}
+        return self.template_prompt({'fitness_level': fitness_level, 'training_frequency': training_frequency})
 
 if __name__ == "__main__":
     app = FitnessAgent()
