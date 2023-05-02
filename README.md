@@ -61,7 +61,6 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
    En mode développeur, avec auto reload :
 
    ```bash
-   cd src
    textual run --dev App.py
    ```
 

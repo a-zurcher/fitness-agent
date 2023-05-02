@@ -12,14 +12,6 @@ from Utils import set_dotenv, get_dotenv
 
 class Chat(Screen):
     data = pd.read_csv("template_prompts.csv")
-    context = 0
-    contexts = [
-        "create_plan",
-        "add_workout",
-        "remove_workout",
-        "view_plan",
-        "edit_workout",
-    ]
 
     chat_history = []
     text_log_history = ""
@@ -30,7 +22,6 @@ class Chat(Screen):
             Tab("Add workout", id="add_workout"),
             Tab("Remove workout", id="remove_workout"),
             Tab("View plan", id="view_plan"),
-            Tab("Edit workout", id="edit_workout"),
             active="create_plan"
         )
 
@@ -123,9 +114,9 @@ class Chat(Screen):
         # key is the command selected by the user (e.g. "create_plan, add_workout, ...")
         df = self.data[self.data['template'] == key]
 
-        system_content = df[df['role'] == 'system'].content.iloc[0]
-        assistant_content = df[df['role'] == 'assistant'].content.iloc[0]
-        user_content = df[df['role'] == 'user'].content.iloc[0]
+        system_content      = df[df['role'] == 'system'].content.iloc[0]
+        assistant_content   = df[df['role'] == 'assistant'].content.iloc[0]
+        user_content        = df[df['role'] == 'user'].content.iloc[0]
 
         messages = [
             {'role': 'system', 'content': system_content},
