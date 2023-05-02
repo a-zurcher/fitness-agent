@@ -86,9 +86,9 @@ class Chat(Screen):
         self.chat_completion(self.context)
 
     def add_to_chat_history(self, role: str, message: str) -> None:
-        if role == "user" and get_dotenv("plan"):
-            self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
-        else:
+        #if role == "user" and get_dotenv("plan"):
+        #    self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
+        #else:
             self.chat_history.append({"role": role, "content": message})
 
     def print_message(self, role: str, message: str) -> None:
@@ -120,7 +120,7 @@ class Chat(Screen):
         user_content = df[df['role'] == 'user'].content.iloc[0]
 
         messages = [
-            {'role': 'system', 'content': system_content},
+            {'role': 'system', 'content': system_content + "\nThis is the last plan you did : " + get_dotenv("plan")},
             {'role': 'assistant', 'content': assistant_content},
             {'role': 'user', 'content': user_content},
             self.chat_history[-1]
