@@ -5,7 +5,8 @@ from textual import log, work
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.screen import Screen
-from textual.widgets import Static, TextLog, Button, Input, Tabs, LoadingIndicator
+from textual.widgets import TextLog, Button, Input, Tabs, Header
+
 
 class Chat(Screen):
     data = pd.read_csv("template_prompts.csv")
@@ -21,8 +22,14 @@ class Chat(Screen):
     chat_history = []
 
     def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
+
         yield Tabs(
-            # disabled=True
+            "create_plan",
+            "add_workout",
+            "remove_workout",
+            "view_plan",
+            "edit_workout",
         )
 
         yield TextLog(highlight=True, markup=True, wrap=True)
@@ -40,11 +47,6 @@ class Chat(Screen):
         # focuses input
         user_input = self.query_one("#user_input")
         user_input.focus()
-
-        # Adds the tabs on mount
-        tabs = self.query_one(Tabs)
-        for c in self.contexts:
-            tabs.add_tab(c)
 
         plan = dotenv.get_key(key_to_get="plan", dotenv_path=".env")
         frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")

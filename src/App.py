@@ -8,6 +8,8 @@ from Chat import Chat
 
 class Profile(Screen):
     def compose(self):
+        yield Header(show_clock=True)
+
         yield self.ProfileLevel()
         yield self.ProfileFrequency()
 
@@ -50,9 +52,6 @@ class Profile(Screen):
 class FitnessAgent(App):
     BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
     CSS_PATH = "FitnessAgent.css"
-
-    def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
 
     def on_mount(self) -> None:
         self.push_screen(Chat())
