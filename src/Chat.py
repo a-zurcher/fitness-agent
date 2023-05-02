@@ -65,6 +65,13 @@ class Chat(Screen):
     def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
         """On tab selection, sets global context to tab value"""
         self.context = event.tab.id
+        if self.context == "view_plan":
+            self.query_one("#user_input").disabled = True
+            self.query_one("#user_submit").disabled = True
+        else:
+            self.query_one("#user_input").disabled = False
+            self.query_one("#user_submit").disabled = False
+
 
     def on_input_submitted(self) -> None:
         self.send_message(self.query_one("#user_input").value)
