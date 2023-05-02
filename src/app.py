@@ -1,71 +1,72 @@
-import openai
-from typing import Dict, List
-import pandas as pd
-
+import dotenv
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, Input, Markdown, TabbedContent, RadioSet, RadioButton, Label
+from textual.screen import Screen
+from textual.widgets import Header, Label, RadioSet, RadioButton, Button, Static
 
-from Profile import Profile
 from Chat import Chat
+
+
+class Profile(Screen):
+    def compose(self):
+        yield self.ProfileLevel()
+        yield self.ProfileFrequency()
+
+        yield Button("Submit", variant="primary", id="profile_submit")
+
+    def on_button_pressed(self) -> None:
+        if dotenv.get_key(key_to_get="level", dotenv_path=".env") and \
+                dotenv.get_key(key_to_get="frequency", dotenv_path=".env"):
+            self.app.pop_screen()
+
+    # Manages fitness level question
+    class ProfileLevel(Static):
+        levels = ["Beginner", "Intermediate", "Advanced"]
+
+        def compose(self) -> ComposeResult:
+            yield Label("[bold]Please select your fitness level :")
+            with RadioSet(id="fitness_level"):
+                for l in self.levels:
+                    yield RadioButton(l)
+
+        def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+            level = event.pressed.label.__str__()
+            dotenv.set_key(key_to_set="level", value_to_set=level, dotenv_path=".env")
+
+    # Manages how many training days question
+    class ProfileFrequency(Static):
+        max_frequency = 7
+
+        def compose(self) -> ComposeResult:
+            yield Label("[bold]Frequency: how many times can you train per week :")
+            with RadioSet(id="frequency"):
+                for i in range(self.max_frequency):
+                    yield RadioButton(str(i + 1))
+
+        def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+            frequency = event.pressed.label.__str__()
+            dotenv.set_key(key_to_set="frequency", value_to_set=frequency, dotenv_path=".env")
 
 
 class FitnessAgent(App):
     BINDINGS = [("d", "toggle_dark", "Toggle dark mode")]
     CSS_PATH = "FitnessAgent.css"
-    data = pd.read_csv("template_prompts.csv")
 
     def compose(self) -> ComposeResult:
         # Create child widgets for the app
         yield Header(show_clock=True)
 
-        # TODO : ajouter vérification
-        yield Profile(id="profile")
-
-        # TODO: ajouter changement de contexte
         yield Chat()
 
-        # TODO: garder en bas
-        yield Input(placeholder="Type your message here", id="user_input")
-        yield Footer()
+    def on_mount(self) -> None:
+        level = dotenv.get_key(dotenv_path=".env", key_to_get="level")
+        frequency = dotenv.get_key(dotenv_path=".env", key_to_get="frequency")
+
+        if not level or not frequency:
+            self.push_screen(Profile())
 
     def action_toggle_dark(self) -> None:
         # An action to toggle dark mode
         self.dark = not self.dark
-
-    def generate_response(self, messages: List[Dict]) -> str:
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages
-        )
-        response = completion.choices[0].message.content
-        return response
-
-    def add_chat_history(self, prompt, role="user"):
-        self.chat_history.append({"role": role, "content": prompt})
-
-    # key is the command selected by the user (e.g. "create_plan, add_workout, ...")
-    def commands_prompt(self, key):
-        df = self.data[self.data['template'] == key]
-
-        system_content = df[df['role'] == 'system'].content.iloc[0]
-        assistant_content = df[df['role'] == 'assistant'].content.iloc[0]
-        user_content = df[df['role'] == 'user'].content.iloc[0]
-
-        return self.generate_response(
-            [{'role': 'system', 'content': system_content}, {'role': 'assistant', 'content': assistant_content},
-             {'role': 'user', 'content': user_content}])
-
-    def template_prompt(self, inputs: Dict[str, str], template: str) -> str:
-        prompt = template.format(**inputs)
-        return prompt
-
-    # Fonction pour créer le plan d'entraînement original du user selon son niveau de fitness et sa fréquence
-    # d'entraînement
-    def user_plan(self, fitness_level, training_frequency):
-        template = "Please create a workout plan. I am a {fitness_level}. I can train {training_frequency} times a week."
-        {'fitness_level': fitness_level, 'training_frequency': training_frequency}
-        return self.template_prompt({'fitness_level': fitness_level, 'training_frequency': training_frequency},
-                                    template)
 
 
 if __name__ == "__main__":

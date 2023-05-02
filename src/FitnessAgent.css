@@ -1,7 +1,50 @@
-#profile {
-    height: 16;
+/*
+===============
+PROFILE
+===============
+*/
+Profile {
+    height: 20;
+    margin: 1;
+    align: center middle;
 }
 
-#user_input {
-    align-vertical: bottom;
+ProfileFrequency,
+ProfileLevel {
+    overflow: auto;
+    align: left middle;
+    width: 60;
+    margin-bottom: 3;
+}
+
+ProfileFrequency RadioSet,
+ProfileLevel RadioSet {
+    border: none;
+    layout: horizontal;
+    margin-top: 1;
+}
+
+ProfileFrequency RadioSet RadioButton,
+ProfileLevel RadioSet RadioButton {
+    margin-right: 2;
+}
+
+/*
+===============
+CHAT
+===============
+*/
+Chat #user_input {
+    width: 1fr;
+}
+
+Chat #user_submit {
+    width: 6;
+}
+
+Chat #chat_input {
+    layout: horizontal;
+    height: 3;
+    margin-right: 1;
+    margin-top: 1;
 }
