@@ -15,7 +15,8 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
 3. Créer un environnement virtuel Python:
 
    ```bash
-   $ python -m venv /path/to/fitness-agent
+   cd /path/to/fitness-agent
+   python -m venv venv
    ```
 
 4. Activer environnement virtuel:
@@ -23,27 +24,25 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
    - Mac OS / Linux
 
      ```bash
-     $ cd /path/to/fitness-agent
-     $ source venv/bin/activate
+     source venv/bin/activate
      ```
 
    - Windows (Powershell)
 
      ```powershell
-     $ cd \path\to\fitness-agent
-     $ venv\Scripts\activate
+     venv\Scripts\activate
      ```
 
 5. Installer les dépendances:
 
    ```bash
-   $ pip install -r requirements.txt
+   pip install -r requirements.txt
    ```
 
 6. Faire une copie du fichier .env.example :
 
    ```
-   $ cp .env.example .env
+   cp .env.example .env
    ```
 
 7. Ajouter [la clé](https://beta.openai.com/account/api-keys) OpenAI dans le nouveau fichier `.env`:
@@ -55,5 +54,11 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
 8. Pour lancer l'application :
 
    ```bash
-   python app.py
+   python App.py
+   ```
+
+   En mode développeur, avec auto reload :
+
+   ```bash
+   textual run --dev App.py
    ```

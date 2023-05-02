@@ -7,7 +7,7 @@ from textual.containers import Container
 from textual.screen import Screen
 from textual.widgets import Static, TextLog, Button, Input, Tabs, LoadingIndicator
 
-class Chat(Static):
+class Chat(Screen):
     data = pd.read_csv("template_prompts.csv")
     context = 0
     contexts = [
@@ -33,7 +33,8 @@ class Chat(Static):
             id="chat_input"
         )
 
-    def on_mount(self) -> None:
+    def _on_screen_resume(self) -> None:
+
         self.context = "create_plan"
 
         # focuses input
@@ -45,12 +46,15 @@ class Chat(Static):
         for c in self.contexts:
             tabs.add_tab(c)
 
-        if not dotenv.get_key(key_to_get="plan", dotenv_path=".env"):
-            # creates new workout
-            level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
-            frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
-            self.send_message(self.user_plan(frequency, level))
-        else:
+        plan = dotenv.get_key(key_to_get="plan", dotenv_path=".env")
+        frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
+        level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
+
+        if not plan and frequency and level:
+            # generates a new plan if frequency and level is set
+            self.send_message("New workout plan. " + self.user_profile())
+        elif plan and frequency and level:
+            # if a plan is already present, shows it
             self.print_message("agent", dotenv.get_key(key_to_get="plan", dotenv_path=".env"))
 
     def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
@@ -83,12 +87,14 @@ class Chat(Static):
 
         self.query_one(TextLog).write(formatted_msg)
 
-        # saves to chat history
+        # saves to chat history, with profile added
         self.add_to_chat_history(role, message)
 
     def chat_completion(self, key: str, save_plan: bool = True) -> None:
         """Sends a message to the API and receive a response"""
         openai.api_key = dotenv.dotenv_values(".env")['OPENAI_API_KEY']
+        user_input = self.query_one("#user_input")
+        user_submit = self.query_one("#user_submit")
 
         # key is the command selected by the user (e.g. "create_plan, add_workout, ...")
         df = self.data[self.data['template'] == key]
@@ -104,8 +110,14 @@ class Chat(Static):
             self.chat_history[-1]
         ]
 
+        log("messages : ")
         log(messages)
+        log("chat_history : ")
         log(self.chat_history)
+
+        user_input.disabled = True
+        user_input.value = ""
+        user_submit.disabled = True
 
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -114,6 +126,9 @@ class Chat(Static):
         )
         response = completion.choices[0].message['content']
 
+        user_input.disabled = False
+        user_submit.disabled = False
+
         # saves the plan (if function set)
         if save_plan:
             dotenv.set_key(key_to_set="plan", value_to_set=str(response), dotenv_path=".env")
@@ -121,12 +136,10 @@ class Chat(Static):
         # print the message
         self.print_message("agent", response)
 
-    def user_plan(self, frequency, fitness_level) -> str:
+    def user_profile(self) -> str:
         """creates new workout using fitness level and frequency preference"""
-        return f"New workout plan. My level is {fitness_level}. " \
+        level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
+        frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
+
+        return f"My level is {level}. " \
                f"I can train {frequency} times a week."
-
-
-class Loading(Screen):
-    def compose(self) -> ComposeResult:
-        yield LoadingIndicator()

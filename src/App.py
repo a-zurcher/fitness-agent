@@ -52,16 +52,16 @@ class FitnessAgent(App):
     CSS_PATH = "FitnessAgent.css"
 
     def compose(self) -> ComposeResult:
-        # Create child widgets for the app
         yield Header(show_clock=True)
 
-        yield Chat()
-
     def on_mount(self) -> None:
-        level = dotenv.get_key(dotenv_path=".env", key_to_get="level")
-        frequency = dotenv.get_key(dotenv_path=".env", key_to_get="frequency")
+        self.push_screen(Chat())
 
-        if not level or not frequency:
+        frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
+        level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
+
+        # only shows the profile form if frequency or level is not set
+        if not frequency or not level:
             self.push_screen(Profile())
 
     def action_toggle_dark(self) -> None:
