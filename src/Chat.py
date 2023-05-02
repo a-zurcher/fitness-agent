@@ -79,7 +79,7 @@ class Chat(Screen):
         self.chat_completion(self.context)
 
     def add_to_chat_history(self, role: str, message: str) -> None:
-        if role == "user":
+        if role == "user" and get_dotenv("plan"):
             self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
         else:
             self.chat_history.append({"role": role, "content": message})
@@ -152,5 +152,5 @@ class Chat(Screen):
         level = get_dotenv("level")
         frequency = get_dotenv("frequency")
 
-        return f"My level is {level}. " \
+        return f"My fitness level is {level}. " \
                f"I can train {frequency} times a week."
