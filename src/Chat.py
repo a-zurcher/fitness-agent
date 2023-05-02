@@ -120,6 +120,7 @@ class Chat(Screen):
         user_input.disabled = True
         user_input.value = ""
         user_submit.disabled = True
+        user_submit.label = "Loading..."
 
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -130,6 +131,7 @@ class Chat(Screen):
 
         user_input.disabled = False
         user_submit.disabled = False
+        user_submit.label = "Submit"
 
         # saves the plan (if function set)
         if save_plan:
