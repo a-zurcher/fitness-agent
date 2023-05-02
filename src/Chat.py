@@ -6,6 +6,7 @@ from textual.app import ComposeResult
 from textual.containers import Container
 from textual.screen import Screen
 from textual.widgets import TextLog, Button, Input, Tabs, Header, Tab
+from Utils import set_dotenv, get_dotenv
 
 
 class Chat(Screen):
@@ -42,22 +43,23 @@ class Chat(Screen):
         )
 
     def _on_screen_resume(self) -> None:
+        """Activates when Chat is on screen"""
         self.context = self.query_one(Tabs).active
 
         # focuses input
         user_input = self.query_one("#user_input")
         user_input.focus()
 
-        plan = dotenv.get_key(key_to_get="plan", dotenv_path=".env")
-        frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
-        level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
+        plan = get_dotenv("plan")
+        frequency = get_dotenv("frequency")
+        level = get_dotenv("level")
 
         if not plan and frequency and level:
             # generates a new plan if frequency and level is set
             self.send_message("Create a new workout plan without additional comments. " + self.user_profile())
         elif plan and frequency and level:
             # if a plan is already present, shows it
-            self.print_message("agent", dotenv.get_key(key_to_get="plan", dotenv_path=".env"))
+            self.print_message("agent", get_dotenv("plan"))
 
     def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
         """On tab selection, sets global context to tab value"""
@@ -68,10 +70,8 @@ class Chat(Screen):
 
     @work(exclusive=False)
     def send_message(self, message: str) -> None:
-        # draws the message on the screen
+        """Prints messages, and sends query to API"""
         self.print_message("user", message)
-
-        # sends the message to the API for completion
         self.chat_completion(self.context)
 
     def add_to_chat_history(self, role: str, message: str) -> None:
@@ -127,23 +127,23 @@ class Chat(Screen):
             temperature=0,
             messages=messages
         )
+
         response = completion.choices[0].message['content']
 
         user_input.disabled = False
         user_submit.disabled = False
         user_submit.label = "Submit"
 
-        # saves the plan (if function set)
         if save_plan:
-            dotenv.set_key(key_to_set="plan", value_to_set=str(response), dotenv_path=".env")
+            set_dotenv("plan", str(response))
 
         # print the message
         self.print_message("agent", response)
 
     def user_profile(self) -> str:
         """creates new workout using fitness level and frequency preference"""
-        level = dotenv.get_key(key_to_get="level", dotenv_path=".env")
-        frequency = dotenv.get_key(key_to_get="frequency", dotenv_path=".env")
+        level = get_dotenv("level")
+        frequency = get_dotenv("frequency")
 
         return f"My level is {level}. " \
                f"I can train {frequency} times a week."
