@@ -1,4 +1,3 @@
-import dotenv
 import openai
 import pandas as pd
 from textual import log, work
@@ -23,7 +22,7 @@ class Chat(Screen):
     chat_history = []
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
+        yield Header()
 
         yield Tabs(
             Tab("Create plan", id="create_plan"),
@@ -44,7 +43,8 @@ class Chat(Screen):
 
     def _on_screen_resume(self) -> None:
         """Activates when Chat is on screen"""
-        self.context = self.query_one(Tabs).active
+        tabs = self.query_one(Tabs)
+        self.context = tabs.active
 
         # focuses input
         user_input = self.query_one("#user_input")
@@ -60,13 +60,17 @@ class Chat(Screen):
         elif plan and frequency and level:
             # if a plan is already present, shows it
             self.print_message("agent", get_dotenv("plan"))
+            tabs.active = "view_plan"
 
     def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
         """On tab selection, sets global context to tab value"""
         self.context = event.tab.id
 
-    def on_input_submitted(self) -> None: self.send_message(self.query_one("#user_input").value)
-    def on_button_pressed(self) -> None: self.send_message(self.query_one("#user_input").value)
+    def on_input_submitted(self) -> None:
+        self.send_message(self.query_one("#user_input").value)
+
+    def on_button_pressed(self) -> None:
+        self.send_message(self.query_one("#user_input").value)
 
     @work(exclusive=False)
     def send_message(self, message: str) -> None:
@@ -75,7 +79,10 @@ class Chat(Screen):
         self.chat_completion(self.context)
 
     def add_to_chat_history(self, role: str, message: str) -> None:
-        self.chat_history.append({"role": role, "content": message})
+        if role == "user":
+            self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
+        else:
+            self.chat_history.append({"role": role, "content": message})
 
     def print_message(self, role: str, message: str) -> None:
         """Used to print a message on the interface"""
@@ -94,7 +101,7 @@ class Chat(Screen):
 
     def chat_completion(self, key: str, save_plan: bool = True) -> None:
         """Sends a message to the API and receive a response"""
-        openai.api_key = dotenv.dotenv_values(".env")['OPENAI_API_KEY']
+        openai.api_key = get_dotenv("OPENAI_API_KEY")
         user_input = self.query_one("#user_input")
         user_submit = self.query_one("#user_submit")
 

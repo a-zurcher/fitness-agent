@@ -1,4 +1,3 @@
-import dotenv
 from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Header, Label, RadioSet, RadioButton, Button, Static
@@ -10,7 +9,7 @@ from Chat import Chat
 
 class Profile(Screen):
     def compose(self):
-        yield Header(show_clock=True)
+        yield Header()
 
         yield self.ProfileLevel()
         yield self.ProfileFrequency()
