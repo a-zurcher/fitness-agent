@@ -5,7 +5,7 @@ from textual import log, work
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.screen import Screen
-from textual.widgets import TextLog, Button, Input, Tabs, Header
+from textual.widgets import TextLog, Button, Input, Tabs, Header, Tab
 
 
 class Chat(Screen):
@@ -25,11 +25,12 @@ class Chat(Screen):
         yield Header(show_clock=True)
 
         yield Tabs(
-            "create_plan",
-            "add_workout",
-            "remove_workout",
-            "view_plan",
-            "edit_workout",
+            Tab("Create plan", id="create_plan"),
+            Tab("Add workout", id="add_workout"),
+            Tab("Remove workout", id="remove_workout"),
+            Tab("View plan", id="view_plan"),
+            Tab("Edit workout", id="edit_workout"),
+            active="create_plan"
         )
 
         yield TextLog(highlight=True, markup=True, wrap=True)
@@ -41,8 +42,7 @@ class Chat(Screen):
         )
 
     def _on_screen_resume(self) -> None:
-
-        self.context = "create_plan"
+        self.context = self.query_one(Tabs).active
 
         # focuses input
         user_input = self.query_one("#user_input")
@@ -54,14 +54,14 @@ class Chat(Screen):
 
         if not plan and frequency and level:
             # generates a new plan if frequency and level is set
-            self.send_message("New workout plan. " + self.user_profile())
+            self.send_message("Create a new workout plan without additional comments. " + self.user_profile())
         elif plan and frequency and level:
             # if a plan is already present, shows it
             self.print_message("agent", dotenv.get_key(key_to_get="plan", dotenv_path=".env"))
 
     def on_tabs_tab_activated(self, event: Tabs.TabActivated) -> None:
         """On tab selection, sets global context to tab value"""
-        self.context = event.tab.label.__str__()
+        self.context = event.tab.id
 
     def on_input_submitted(self) -> None: self.send_message(self.query_one("#user_input").value)
     def on_button_pressed(self) -> None: self.send_message(self.query_one("#user_input").value)
