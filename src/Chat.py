@@ -25,8 +25,6 @@ class Chat(Screen):
     text_log_history = ""
 
     def compose(self) -> ComposeResult:
-        yield Header()
-
         yield Tabs(
             Tab("Create plan", id="create_plan"),
             Tab("Add workout", id="add_workout"),
@@ -90,7 +88,7 @@ class Chat(Screen):
 
     def add_to_chat_history(self, role: str, message: str) -> None:
         if role == "user" and get_dotenv("plan"):
-            self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
+            self.chat_history.append({"role": role, "content": self.user_profile() + "This is your last message : " + get_dotenv("plan") + ".\n" + message})
         else:
             self.chat_history.append({"role": role, "content": message})
 
@@ -100,22 +98,25 @@ class Chat(Screen):
 
         match role:
             case "user":
-                formatted_msg = "[bold white on blue]You[/bold white on blue][blue] " + message + "\n"
+                formatted_msg = "[bold black on white]You[/bold black on white][white] " + message + "\n"
             case "agent":
-                formatted_msg = "[bold white on magenta]Agent[/bold white on magenta][magenta] " + message + "\n"
+                formatted_msg = "[bold white on blue]Agent[/bold white on blue][blue] " + message + "\n"
 
         self.query_one(TextLog).write(formatted_msg)
 
         # saves to chat history, with profile added
         self.add_to_chat_history(role, message)
 
-        # append to text_log_history variable
+        # resets, then append to text_log_history variable
+        self.text_log_history = ""
         self.text_log_history = self.text_log_history + formatted_msg + "\n"
 
     def chat_completion(self, key: str, save_plan: bool = True) -> None:
         """Sends a message to the API and receive a response"""
         openai.api_key = get_dotenv("OPENAI_API_KEY")
         user_input = self.query_one("#user_input")
+        formatted_user_input = f"[bold black on white]You[/bold black on white][white] {user_input.value}\n\n"
+
         user_submit = self.query_one("#user_submit")
         text_log = self.query_one(TextLog)
 
@@ -159,13 +160,11 @@ class Chat(Screen):
             event_text = event['choices'][0]['delta']  # EVENT DELTA RESPONSE
             answer = event_text.get('content', '')  # RETRIEVE CONTENT
 
+            text = text + answer
             # STREAM THE ANSWER
             print_message.stream(msg=answer)
 
-            # text_log.write(rich.text.Text(text=answer, end=""))
             time.sleep(delay_time)
-
-            text = text + answer
 
         user_input.disabled = False
         user_submit.disabled = False
@@ -174,10 +173,14 @@ class Chat(Screen):
         # response = completion.choices[0].message['content']
 
         if save_plan:
-            set_dotenv("plan", str(text))
+            set_dotenv("plan", text)
+
+        self.text_log_history = self.text_log_history + f"[bold white on blue]Agent[/bold white on blue][blue]{text}\n"
+
+        
 
     def user_profile(self) -> str:
-        """creates new workout using fitness level and frequency preference"""
+        """keeps the fitness level and frequency preference"""
         level = get_dotenv("level")
         frequency = get_dotenv("frequency")
 
@@ -196,17 +199,17 @@ class PrintMessage:
 
         match role:
             case "user":
-                self.history = self.history + "[bold white on blue]You[/bold white on blue][blue] "
+                self.history = self.history + "[bold black on white]You[/bold black on white][white] "
             case "agent":
-                self.history = self.history + "[bold white on magenta]Agent[/bold white on magenta][magenta] "
+                self.history = self.history + "[bold white on blue]Agent[/bold white on blue][blue] "
 
     def stream(self, msg: str):
         """Used to print a message on the interface"""
         self.history = self.history + msg
 
         self.text_log.clear()
-        self.text_log.write(self.history)
+        self.text_log.write(self.history + "\n")
 
     def static(self, msg: str):
         """Used to print a message on the interface"""
-        self.text_log.write(self.history + msg)
+        self.text_log.write(self.history + msg + "\n")

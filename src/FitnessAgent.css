@@ -48,3 +48,7 @@ Chat #chat_input {
     margin-right: 1;
     margin-top: 1;
 }
+
+TextLog {
+    margin-left: 2;
+}

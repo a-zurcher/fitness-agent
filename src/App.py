@@ -9,8 +9,6 @@ from Chat import Chat
 
 class Profile(Screen):
     def compose(self):
-        yield Header()
-
         yield self.ProfileLevel()
         yield self.ProfileFrequency()
 

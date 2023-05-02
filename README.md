@@ -64,3 +64,9 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
    cd src
    textual run --dev App.py
    ```
+
+   Il est également possible d'avoir une console de débuggage
+   ```bash
+   textual console -x EVENT
+   # -x EVENT est utilisé pour rendre l'output moins verbeux
+   ```
