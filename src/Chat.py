@@ -1,3 +1,5 @@
+import time
+
 import openai
 import pandas as pd
 from textual import log, work
@@ -20,6 +22,7 @@ class Chat(Screen):
     ]
 
     chat_history = []
+    text_log_history = ""
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -71,7 +74,7 @@ class Chat(Screen):
         else:
             self.query_one("#user_input").disabled = False
             self.query_one("#user_submit").disabled = False
-
+            self.query_one("#user_input").focus()
 
     def on_input_submitted(self) -> None:
         self.send_message(self.query_one("#user_input").value)
@@ -86,9 +89,9 @@ class Chat(Screen):
         self.chat_completion(self.context)
 
     def add_to_chat_history(self, role: str, message: str) -> None:
-        #if role == "user" and get_dotenv("plan"):
-        #    self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
-        #else:
+        if role == "user" and get_dotenv("plan"):
+            self.chat_history.append({"role": role, "content": get_dotenv("plan") + ".\n" + message})
+        else:
             self.chat_history.append({"role": role, "content": message})
 
     def print_message(self, role: str, message: str) -> None:
@@ -106,11 +109,15 @@ class Chat(Screen):
         # saves to chat history, with profile added
         self.add_to_chat_history(role, message)
 
+        # append to text_log_history variable
+        self.text_log_history = self.text_log_history + formatted_msg + "\n"
+
     def chat_completion(self, key: str, save_plan: bool = True) -> None:
         """Sends a message to the API and receive a response"""
         openai.api_key = get_dotenv("OPENAI_API_KEY")
         user_input = self.query_one("#user_input")
         user_submit = self.query_one("#user_submit")
+        text_log = self.query_one(TextLog)
 
         # key is the command selected by the user (e.g. "create_plan, add_workout, ...")
         df = self.data[self.data['template'] == key]
@@ -120,7 +127,7 @@ class Chat(Screen):
         user_content = df[df['role'] == 'user'].content.iloc[0]
 
         messages = [
-            {'role': 'system', 'content': system_content + "\nThis is the last plan you did : " + get_dotenv("plan")},
+            {'role': 'system', 'content': system_content},
             {'role': 'assistant', 'content': assistant_content},
             {'role': 'user', 'content': user_content},
             self.chat_history[-1]
@@ -136,23 +143,38 @@ class Chat(Screen):
         user_submit.disabled = True
         user_submit.label = "Loading..."
 
+        delay_time = 0.01
+
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             temperature=0,
-            messages=messages
+            messages=messages,
+            stream=True
         )
 
-        response = completion.choices[0].message['content']
+        text = ""
+        print_message = PrintMessage(role="agent", history=self.text_log_history, text_log=text_log)
+
+        for event in completion:
+            event_text = event['choices'][0]['delta']  # EVENT DELTA RESPONSE
+            answer = event_text.get('content', '')  # RETRIEVE CONTENT
+
+            # STREAM THE ANSWER
+            print_message.stream(msg=answer)
+
+            # text_log.write(rich.text.Text(text=answer, end=""))
+            time.sleep(delay_time)
+
+            text = text + answer
 
         user_input.disabled = False
         user_submit.disabled = False
         user_submit.label = "Submit"
 
-        if save_plan:
-            set_dotenv("plan", str(response))
+        # response = completion.choices[0].message['content']
 
-        # print the message
-        self.print_message("agent", response)
+        if save_plan:
+            set_dotenv("plan", str(text))
 
     def user_profile(self) -> str:
         """creates new workout using fitness level and frequency preference"""
@@ -161,3 +183,30 @@ class Chat(Screen):
 
         return f"My fitness level is {level}. " \
                f"I can train {frequency} times a week."
+
+
+class PrintMessage:
+    """Utility class to print text in stream"""
+    history = ""
+    text_log = None
+
+    def __init__(self, role: str, history: str, text_log: TextLog):
+        self.history = history
+        self.text_log = text_log
+
+        match role:
+            case "user":
+                self.history = self.history + "[bold white on blue]You[/bold white on blue][blue] "
+            case "agent":
+                self.history = self.history + "[bold white on magenta]Agent[/bold white on magenta][magenta] "
+
+    def stream(self, msg: str):
+        """Used to print a message on the interface"""
+        self.history = self.history + msg
+
+        self.text_log.clear()
+        self.text_log.write(self.history)
+
+    def static(self, msg: str):
+        """Used to print a message on the interface"""
+        self.text_log.write(self.history + msg)
