@@ -1,4 +1,7 @@
 # fitness-agent
+Vue profile | Vue agent
+:-------------------------:|:-------------------------:
+![](screenshots/profile.png) | ![](screenshots/create.png)
 
 Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https://textual.textualize.io).
 
