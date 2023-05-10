@@ -1,4 +1,4 @@
-# fitness-agent
+# 💪 fitness-agent
 Vue profile | Vue agent
 :-------------------------:|:-------------------------:
 ![](screenshots/profile.png) | ![](screenshots/create.png)
@@ -42,7 +42,7 @@ Un agent IA pour le fitness, basé sur `ChatGPT`, construit avec [Textual](https
    pip install -r requirements.txt
    ```
 
-6. Faire une copie du fichier .env.example :
+6. Faire une copie du fichier `.env.example` vers `.env` :
 
    ```
    cp .env.example .env
